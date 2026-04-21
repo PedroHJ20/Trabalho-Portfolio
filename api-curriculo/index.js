@@ -38,9 +38,9 @@ app.get('/pessoas/:id/completo', async (req, res) => {
         const expAcad = await pool.query('SELECT * FROM experiencias_academicas WHERE pessoa_id = $1', [id]);
         const projetos = await pool.query('SELECT * FROM projetos WHERE pessoa_id = $1', [id]);
 
-        // Junta tudo em um único objeto JSON
+        
         res.json({
-            ...pessoa.rows,
+            ...pessoa.rows, 
             experiencias_profissionais: expProf.rows,
             experiencias_academicas: expAcad.rows,
             projetos: projetos.rows
@@ -51,7 +51,7 @@ app.get('/pessoas/:id/completo', async (req, res) => {
 });
 
 
-// 3. CREATE 
+// 3. CREATE (Criar nova pessoa)
 
 app.post('/pessoas', async (req, res) => {
     const { nome, resumo_perfil } = req.body;
@@ -60,14 +60,14 @@ app.post('/pessoas', async (req, res) => {
             'INSERT INTO pessoas (nome, resumo_perfil) VALUES ($1, $2) RETURNING *',
             [nome, resumo_perfil]
         );
-        res.status(201).json(result.rows);
+        res.status(201).json(result.rows); // Corrigido para retornar apenas o objeto criado
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }
 });
 
 
-// 4. UPDATE 
+// 4. UPDATE (Editar uma pessoa)
 
 app.put('/pessoas/:id', async (req, res) => {
     const { id } = req.params;
@@ -78,14 +78,14 @@ app.put('/pessoas/:id', async (req, res) => {
             [nome, resumo_perfil, id]
         );
         if (result.rows.length === 0) return res.status(404).json({ erro: 'Pessoa não encontrada' });
-        res.json(result.rows);
+        res.json(result.rows); // Corrigido para retornar apenas o objeto atualizado
     } catch (err) {
         res.status(500).json({ erro: err.message });
     }
 });
 
 
-// 5. DELETE
+// 5. DELETE (Deletar uma pessoa)
 
 app.delete('/pessoas/:id', async (req, res) => {
     const { id } = req.params;
@@ -102,3 +102,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT} e banco conectado!`);
 });
+
+// Linha essencial para o Vercel reconhecer que isso é uma API Express
+module.exports = app;
